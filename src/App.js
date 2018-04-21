@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import './App.css';
-
 import { API_ROOT } from './api-config';
+
+import {Typeahead} from 'react-bootstrap-typeahead';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
+import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -10,26 +14,40 @@ class App extends Component {
         species: "",
         noRecordingFound: false,
         loading: false,
-        showSpecies: false
+        showSpecies: false,
+        speciesList: [],
+        selectedSpeciesGuess: null,
+        guessCorrect: false,
+        counter: 0
         };
+    this.callApi('species').then((result) => {
+        this.setState((prevState, props) => {
+            return {
+                ...props,
+                speciesList: result.species
+            }
+        })
+    });
   }
 
+    callApi = async (path) => {
+        const response = await fetch(`${API_ROOT}/${path}`);
+        const body = await response.json();
+
+        if (response.status !== 200) throw Error(body.message);
+
+        return body;
+    };
+
   getRandomBirdsong = function() {
-      const callApi = async () => {
-          const response = await fetch(`${API_ROOT}/birdsong`);
-          const body = await response.json();
 
-          if (response.status !== 200) throw Error(body.message);
-
-          return body;
-      };
       this.setState((prevState, props) => {
           return {
               ...props,
               loading: true
           }
       })
-      callApi().then(result => {
+      this.callApi('birdsong').then(result => {
           this.setState((prevState, props) => {
               if (result.noRecordings) {
                   return {
@@ -43,8 +61,10 @@ class App extends Component {
                   ...props,
                   birdsongId: result.recording.id,
                   species: result.recording.en,
+                  scientificName: result.recording.gen + ' ' + result.recording.sp,
                   loading: false,
-                  showSpecies: false
+                  showSpecies: false,
+                  counter: prevState.counter + 1
               }
           });
       });
@@ -57,8 +77,26 @@ class App extends Component {
           }
       })
   }
+  onSpeciesGuessMade = (guess) => {
+      let guessCorrect = guess != null &&
+      guess.ScientificName.toLowerCase() === this.state.scientificName.toLowerCase();
+      if (guessCorrect) {
+          this.getRandomBirdsong();
+      }
+      this.setState((prevState, props) => {
+           return {
+               ...props,
+               guessCorrect: guessCorrect,
+               selectedSpeciesGuess: guess
+           }
+        });
+  };
+
+
   componentWillMount = function() {
     this.getRandomBirdsong();
+
+
   }
   
   render() {
@@ -81,8 +119,24 @@ class App extends Component {
                 </div>
                 }
         </div>
-          <button onClick={() => this.toggleShowSpecies()}>{this.state.showSpecies ? "Hide species": "Show species"}</button>
-        <button onClick={() => this.getRandomBirdsong()}>Fetch new song</button>
+          <div style={{width: '50%'}}>
+              <Typeahead
+                  labelKey="Species"
+                  options={this.state.speciesList}
+                  placeholder="Type your guess..."
+                  onChange={(options) => {
+                      this.onSpeciesGuessMade(options[0]);
+                  }}
+              />
+              {
+                  this.state.selectedSpeciesGuess &&
+                  <div>
+                      {this.state.guessCorrect ? "Correct" : "Wrong"}
+                   </div>
+              }
+          </div>
+          <button onClick={() => this.toggleShowSpecies()}>{this.state.showSpecies ? "Hide species": "Give up?"}</button>
+          <button onClick={() => this.getRandomBirdsong()}>Fetch new song</button>
       </div>
     );
   }
