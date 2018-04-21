@@ -15,7 +15,7 @@ class App extends Component {
 
   getRandomBirdsong = function() {
       const callApi = async () => {
-          const response = await fetch('http://randombirdsongapi.herokuapp.com/api/birdsong');
+          const response = await fetch('https://randombirdsongapi.herokuapp.com/api/birdsong');
           const body = await response.json();
 
           if (response.status !== 200) throw Error(body.message);
