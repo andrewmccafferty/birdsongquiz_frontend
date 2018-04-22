@@ -4,8 +4,10 @@
   "private": true,
   "dependencies": {
     "react": "^16.3.1",
+    "react-bootstrap-typeahead": "^3.0.4",
     "react-dom": "^16.3.1",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "react-typeahead": "^2.0.0-alpha.8"
   },
   "scripts": {
     "start": "react-scripts start",
