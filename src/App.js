@@ -95,8 +95,6 @@ class App extends Component {
 
   componentWillMount = function() {
     this.getRandomBirdsong();
-
-
   }
   
   render() {
@@ -119,11 +117,13 @@ class App extends Component {
                 </div>
                 }
         </div>
-          <div style={{width: '50%'}}>
+          <div style={{width: '25%', marginLeft: '38%'}}>
               <Typeahead
                   labelKey="Species"
                   options={this.state.speciesList}
                   placeholder="Type your guess..."
+                  minLength={1}
+                  clearButton={true}
                   onChange={(options) => {
                       this.onSpeciesGuessMade(options[0]);
                   }}
@@ -131,7 +131,8 @@ class App extends Component {
               {
                   this.state.selectedSpeciesGuess &&
                   <div>
-                      {this.state.guessCorrect ? "Correct" : "Wrong"}
+                      Your guess: <span style={{color: this.state.guessCorrect ? 'green' : 'red'}}>{this.state.selectedSpeciesGuess.Species}</span>
+                      {this.state.guessCorrect ? " Correct" : " Wrong"}
                    </div>
               }
           </div>
