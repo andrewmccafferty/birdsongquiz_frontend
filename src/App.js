@@ -79,13 +79,15 @@ class App extends Component {
                       showSpecies: false
                   }
               }
+              const recording = result.recordingResult.recording
               return {
                   ...props,
-                  birdsongId: result.recording.id,
-                  species: result.recording.en,
-                  scientificName: result.recording.gen + ' ' + result.recording.sp,
+                  birdsongId: recording.id,
+                  species: recording.en,
+                  scientificName: recording.gen + ' ' + recording.sp,
                   loading: false,
                   showSpecies: false,
+                  multipleChoiceOptions: result.multipleChoiceOptions,
                   counter: prevState.counter + 1
               }
           });
@@ -108,6 +110,9 @@ class App extends Component {
       })
   }
   onSpeciesGuessMade = (guess) => {
+      if (this.state.selectedSpeciesGuess) {
+          return
+      }
       const guessCorrect = guess != null && guess.ScientificName.toLowerCase() === this.state.scientificName.toLowerCase();
 
       this.setState((prevState, props) => {
@@ -157,35 +162,37 @@ class App extends Component {
           <input id="expertmode" type="checkbox" onClick={(e) => {
                this.onChangeExpertMode(e.target.checked);
           }} style={{marginRight : '3px'}}/><label htmlFor="expertmode">Expert mode</label>
-          <div style={{width: '25%', marginLeft: '38%'}}>
-              {!this.state.showSpecies && !this.state.guessCorrect && <Typeahead
-                  labelKey="Species"
-                  options={this.state.speciesList}
-                  placeholder="Type your guess..."
-                  minLength={1}
-                  clearButton={true}
-                  onChange={(options) => {
-                      this.onSpeciesGuessMade(options[0]);
-                  }}
-                  ref={(ref) => this._typeahead = ref}
-              />}
-              {
-                  this.state.selectedSpeciesGuess &&
-                  <div style={{}}>
-                      Your guess: <span style={{color: this.state.guessCorrect ? 'green' : 'red'}}>{this.state.selectedSpeciesGuess.Species}</span>
-                      {this.state.guessCorrect &&
-                      <div>
-                          <div>Correct! </div>
-                          <div>
-                              <a href="#" onClick={() => this.getRandomBirdsong()}>Load next question</a>
-                          </div>
-                      </div>}
-                  </div>
-              }
-              {this.state.showSpecies && <div>Answer: {this.state.species} <a href="#" onClick={() => this.getRandomBirdsong()}>Load next question</a></div>}
-
-
-          </div>
+          {
+              this.state.multipleChoiceOptions &&
+              <div>
+                  {this.state.multipleChoiceOptions.map(option => {
+                      let backgroundColour = 'gray'
+                      if (option === this.state.selectedSpeciesGuess) {
+                          backgroundColour = this.state.guessCorrect ? 'green': 'red'
+                      }
+                      if (this.state.selectedSpeciesGuess && !this.state.guessCorrect &&
+                          option.ScientificName.toLowerCase() === this.state.scientificName.toLowerCase()) {
+                          backgroundColour = 'green'
+                      }
+                      return <div id={option.species} style={{
+                          'background-color': backgroundColour,
+                          'color': 'white',
+                          'border': 'solid 1px',
+                          'width': '50%',
+                          'margin-left': '25%',
+                          'margin-bottom': '1px',
+                          'cursor': 'pointer'
+                      }} onClick={() => this.onSpeciesGuessMade(option)}>{option.Species}</div>
+                  })
+                  }
+              </div>
+          }
+          {
+              this.state.selectedSpeciesGuess &&
+              <div>
+                  <a href="#" onClick={() => this.getRandomBirdsong()}>Load next question</a>
+              </div>
+          }
           {!this.state.guessCorrect && !this.state.showSpecies && <button onClick={() => this.showSpecies()}>Give up?</button>}
           <div>
           Score so far {this.state.correctCount}/{this.state.counter -1 }
