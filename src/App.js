@@ -174,13 +174,13 @@ class App extends Component {
                           option.ScientificName.toLowerCase() === this.state.scientificName.toLowerCase()) {
                           backgroundColour = 'green'
                       }
-                      return <div id={option.species} style={{
+                      return <div id={option.Species} style={{
                           'background-color': backgroundColour,
                           'color': 'white',
                           'border': 'solid 1px',
                           'width': '50%',
                           'margin-left': '25%',
-                          'margin-bottom': '1px',
+                          'margin-bottom': '5px',
                           'cursor': 'pointer'
                       }} onClick={() => this.onSpeciesGuessMade(option)}>{option.Species}</div>
                   })
