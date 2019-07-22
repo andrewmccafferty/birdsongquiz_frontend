@@ -193,7 +193,6 @@ class App extends Component {
                   <a href="#" onClick={() => this.getRandomBirdsong()}>Load next question</a>
               </div>
           }
-          {!this.state.guessCorrect && !this.state.showSpecies && <button onClick={() => this.showSpecies()}>Give up?</button>}
           <div>
           Score so far {this.state.correctCount}/{this.state.counter -1 }
           </div>
