@@ -83,6 +83,7 @@ class App extends Component {
                   ...props,
                   birdsongId: recording.id,
                   species: recording.en,
+                  recordist: recording.rec,
                   scientificName: recording.gen + ' ' + recording.sp,
                   loading: false,
                   showSpecies: false,
@@ -189,6 +190,13 @@ class App extends Component {
           {
               this.state.selectedSpeciesGuess &&
               <div>
+                  <div style={{'border': 'solid 1px',
+                      'width': '50%',
+                      'marginLeft': '25%',
+                      'marginTop': '10px',
+                      'marginBottom': '5px'}}>
+                      Recording courtesy of {this.state.recordist} via <a target="_blank" href={`http://xeno-canto.org/${this.state.birdsongId}`}>http://xeno-canto.org/{this.state.birdsongId}</a>
+                  </div>
                   <button class="btn btn-info" href="#" onClick={() => this.getRandomBirdsong()}>Next -></button>
               </div>
           }
