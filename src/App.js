@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import './App.css';
 import { API_ROOT } from './api-config';
 
-import {Typeahead} from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
 
@@ -87,8 +86,7 @@ class App extends Component {
                   scientificName: recording.gen + ' ' + recording.sp,
                   loading: false,
                   showSpecies: false,
-                  multipleChoiceOptions: result.multipleChoiceOptions,
-                  counter: prevState.counter + 1
+                  multipleChoiceOptions: result.multipleChoiceOptions
               }
           });
       }).catch(() => {
@@ -121,7 +119,8 @@ class App extends Component {
               ...props,
               selectedSpeciesGuess: guess,
               guessCorrect: guessCorrect,
-              correctCount: correctCount
+              correctCount: correctCount,
+              counter: prevState.counter + 1
           }
       });
   };
@@ -148,7 +147,7 @@ class App extends Component {
         </header>
         <div className="App-intro">
             {this.state.loading && <div>Loading...</div>}
-            {this.state.errorLoading && <div>Error loading data. Please <a href="#" onClick={() => { this.getRandomBirdsong();}}>try again</a></div>}
+            {this.state.errorLoading && <div>Error loading data. Please <button href="#" onClick={() => { this.getRandomBirdsong();}}>try again</button></div>}
                 {!this.state.loading && this.state.noRecordingFound && <span>No recording found</span>}
 
                 {!this.state.loading &&  !this.state.errorLoading && this.state.birdsongId &&
@@ -162,7 +161,7 @@ class App extends Component {
           <input id="expertmode" type="checkbox" onClick={(e) => {
                this.onChangeExpertMode(e.target.checked);
           }} style={{marginRight : '3px'}}/><label htmlFor="expertmode">Expert mode</label>
-          {
+          {!this.state.loading &&
               this.state.multipleChoiceOptions &&
               <div>
                   {this.state.multipleChoiceOptions.map(option => {
@@ -174,13 +173,13 @@ class App extends Component {
                           option.ScientificName.toLowerCase() === this.state.scientificName.toLowerCase()) {
                           backgroundColour = 'green'
                       }
-                      return <div id={option.Species} style={{
-                          'background-color': backgroundColour,
+                      return <div key={option.Species} style={{
+                          'backgroundColor': backgroundColour,
                           'color': 'white',
                           'border': 'solid 1px',
                           'width': '50%',
-                          'margin-left': '25%',
-                          'margin-bottom': '5px',
+                          'marginLeft': '25%',
+                          'marginBottom': '5px',
                           'cursor': 'pointer'
                       }} onClick={() => this.onSpeciesGuessMade(option)}>{option.Species}</div>
                   })
@@ -190,11 +189,11 @@ class App extends Component {
           {
               this.state.selectedSpeciesGuess &&
               <div>
-                  <a href="#" onClick={() => this.getRandomBirdsong()}>Load next question</a>
+                  <button class="btn btn-info" href="#" onClick={() => this.getRandomBirdsong()}>Next -></button>
               </div>
           }
           <div>
-          Score so far {this.state.correctCount}/{this.state.counter -1 }
+              {this.state.counter > 0 && <div>Score so far {this.state.correctCount}/{this.state.counter }</div>}
           </div>
       </div>
     );
