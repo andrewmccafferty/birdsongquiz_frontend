@@ -1,28 +1,31 @@
 import React, { Component } from 'react';
 import './App.css';
 import { API_ROOT } from './api-config';
-
-import {Typeahead} from 'react-bootstrap-typeahead';
+import _ from 'lodash'
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheck, faTimes, faCrow } from '@fortawesome/free-solid-svg-icons'
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-        birdsongId: "",
-        species: "",
-        noRecordingFound: false,
-        loading: false,
-        showSpecies: false,
-        speciesList: [],
-        selectedSpeciesGuess: null,
-        counter: 0,
-        correctCount: 0,
-        errorLoading: false,
-        expertMode: false,
-        guessCorrect: false
-        };
+      this.state = {
+          birdsongId: "",
+          species: "",
+          noRecordingFound: false,
+          loading: false,
+          showSpecies: false,
+          speciesList: [],
+          selectedSpeciesGuess: null,
+          level: 1,
+          counter: 0,
+          correctCount: 0,
+          livesLeft: 5,
+          errorLoading: false,
+          expertMode: false,
+          guessCorrect: false
+      };
     this.callApi('species').then((result) => {
         this.setState((prevState, props) => {
             return {
@@ -33,6 +36,18 @@ class App extends Component {
     });
   }
 
+    restartGame = () => {
+        this.setState((prevState, props) => {
+            return {
+                ...props,
+                level: 1,
+                correctCount: 0,
+                counter: 0,
+                livesLeft: 5
+            }
+        });
+        this.getRandomBirdsong()
+    }
     callApi = async (path) => {
         const response = await fetch(`${API_ROOT}/${path}`);
         const body = await response.json();
@@ -65,10 +80,7 @@ class App extends Component {
               guessCorrect: false
           }
       });
-      var randomRecordingApiUrl = 'birdsong';
-      if (!this.state.expertMode) {
-          randomRecordingApiUrl += "?level=1";
-      }
+      var randomRecordingApiUrl = `birdsong?level=${this.state.level}`
       this.callApi(randomRecordingApiUrl).then(result => {
           this.setState((prevState, props) => {
               if (result.noRecordings) {
@@ -79,14 +91,16 @@ class App extends Component {
                       showSpecies: false
                   }
               }
+              const recording = result.recordingResult.recording
               return {
                   ...props,
-                  birdsongId: result.recording.id,
-                  species: result.recording.en,
-                  scientificName: result.recording.gen + ' ' + result.recording.sp,
+                  birdsongId: recording.id,
+                  species: recording.en,
+                  recordist: recording.rec,
+                  scientificName: recording.gen + ' ' + recording.sp,
                   loading: false,
                   showSpecies: false,
-                  counter: prevState.counter + 1
+                  multipleChoiceOptions: result.multipleChoiceOptions
               }
           });
       }).catch(() => {
@@ -108,15 +122,27 @@ class App extends Component {
       })
   }
   onSpeciesGuessMade = (guess) => {
+      const levelIncrementInterval = 5
+      if (this.state.selectedSpeciesGuess) {
+          return
+      }
       const guessCorrect = guess != null && guess.ScientificName.toLowerCase() === this.state.scientificName.toLowerCase();
-
       this.setState((prevState, props) => {
           let correctCount = guessCorrect ? prevState.correctCount + 1 : prevState.correctCount;
+          const newCounter = prevState.counter + 1
+          let newLevel = prevState.level
+          if (correctCount > 0 && correctCount % levelIncrementInterval === 0) {
+              newLevel++
+          }
+          const newLivesLeft = !guessCorrect ? prevState.livesLeft - 1 : prevState.livesLeft
           return {
               ...props,
               selectedSpeciesGuess: guess,
               guessCorrect: guessCorrect,
-              correctCount: correctCount
+              correctCount: correctCount,
+              counter: newCounter,
+              level: newLevel,
+              livesLeft: newLivesLeft
           }
       });
   };
@@ -134,16 +160,25 @@ class App extends Component {
     componentWillMount = function() {
     this.getRandomBirdsong();
   }
-  
+
   render() {
+
     return (
       <div className="App">
         <header className="App-header">
           <h1 className="App-title">Birdsong quiz</h1>
         </header>
         <div className="App-intro">
+            <div style={{'margin-bottom': '5px'}}>
+                {<div>Score so far {this.state.correctCount}/{this.state.counter }</div>}
+                {_.range(0, this.state.livesLeft).map(i =>  <FontAwesomeIcon style={{'font-size': '30px', 'margin': '5px'}} icon={faCrow} /> )}
+                { this.state.livesLeft === 0 &&
+                <div>
+                    Game Over <FontAwesomeIcon style={{'margin-left': '5px'}} transform={{ rotate: 180 }} icon={faCrow} />
+                </div>}
+            </div>
             {this.state.loading && <div>Loading...</div>}
-            {this.state.errorLoading && <div>Error loading data. Please <a href="#" onClick={() => { this.getRandomBirdsong();}}>try again</a></div>}
+            {this.state.errorLoading && <div>Error loading data. Please <button href="#" onClick={() => { this.getRandomBirdsong();}}>try again</button></div>}
                 {!this.state.loading && this.state.noRecordingFound && <span>No recording found</span>}
 
                 {!this.state.loading &&  !this.state.errorLoading && this.state.birdsongId &&
@@ -154,42 +189,53 @@ class App extends Component {
                 </div>
                 }
         </div>
-          <input id="expertmode" type="checkbox" onClick={(e) => {
-               this.onChangeExpertMode(e.target.checked);
-          }} style={{marginRight : '3px'}}/><label htmlFor="expertmode">Expert mode</label>
-          <div style={{width: '25%', marginLeft: '38%'}}>
-              {!this.state.showSpecies && !this.state.guessCorrect && <Typeahead
-                  labelKey="Species"
-                  options={this.state.speciesList}
-                  placeholder="Type your guess..."
-                  minLength={1}
-                  clearButton={true}
-                  onChange={(options) => {
-                      this.onSpeciesGuessMade(options[0]);
-                  }}
-                  ref={(ref) => this._typeahead = ref}
-              />}
-              {
-                  this.state.selectedSpeciesGuess &&
-                  <div style={{}}>
-                      Your guess: <span style={{color: this.state.guessCorrect ? 'green' : 'red'}}>{this.state.selectedSpeciesGuess.Species}</span>
-                      {this.state.guessCorrect &&
-                      <div>
-                          <div>Correct! </div>
-                          <div>
-                              <a href="#" onClick={() => this.getRandomBirdsong()}>Load next question</a>
-                          </div>
-                      </div>}
+          {!this.state.loading &&
+              this.state.multipleChoiceOptions &&
+                <div>
+                  {this.state.multipleChoiceOptions.map(option => {
+                      let backgroundColour = 'gray'
+                      if (option === this.state.selectedSpeciesGuess) {
+                          backgroundColour = this.state.guessCorrect ? 'green': 'red'
+                      }
+                      if (this.state.selectedSpeciesGuess && !this.state.guessCorrect &&
+                          option.ScientificName.toLowerCase() === this.state.scientificName.toLowerCase()) {
+                          backgroundColour = 'green'
+                      }
+                      return <div key={option.Species} style={{
+                          'backgroundColor': backgroundColour,
+                          'color': 'white',
+                          'border': 'solid 1px',
+                          'height': '40px',
+                          'verticalAlign': 'middle',
+                          'fontSize': '20px',
+                          'width': '50%',
+                          'marginLeft': '25%',
+                          'marginBottom': '5px',
+                          'cursor': 'pointer',
+                          'paddingTop': '5px'
+                      }} onClick={() => this.onSpeciesGuessMade(option)}>{option.Species}
+                          { backgroundColour === 'green' && <FontAwesomeIcon style={{'margin-left': '5px'}} icon={faCheck} />}
+                          { backgroundColour === 'red' && <FontAwesomeIcon style={{'margin-left': '5px'}} icon={faTimes} />}
+                      </div>
+                  })
+                  }
+              </div>
+          }
+          {
+              this.state.selectedSpeciesGuess &&
+              <div>
+                  <div style={{'border': 'solid 1px',
+                      'width': '50%',
+                      'marginLeft': '25%',
+                      'marginTop': '10px',
+                      'marginBottom': '5px'}}>
+                      Recording courtesy of {this.state.recordist} via <a target="_blank" href={`http://xeno-canto.org/${this.state.birdsongId}`}>http://xeno-canto.org/{this.state.birdsongId}</a>
                   </div>
-              }
-              {this.state.showSpecies && <div>Answer: {this.state.species} <a href="#" onClick={() => this.getRandomBirdsong()}>Load next question</a></div>}
-
-
-          </div>
-          {!this.state.guessCorrect && !this.state.showSpecies && <button onClick={() => this.showSpecies()}>Give up?</button>}
-          <div>
-          Score so far {this.state.correctCount}/{this.state.counter -1 }
-          </div>
+                  {this.state.livesLeft > 0 && <button class="btn btn-info" href="#" onClick={() => this.getRandomBirdsong()}>Next -></button>}
+              </div>
+          }
+          {this.state.livesLeft === 0 &&
+          <button className="btn btn-info" href="#" onClick={() => this.restartGame()}>Play again?</button>}
       </div>
     );
   }
