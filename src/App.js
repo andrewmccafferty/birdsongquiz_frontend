@@ -4,6 +4,8 @@ import { API_ROOT } from './api-config';
 
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 
 class App extends Component {
   constructor(props) {
@@ -139,8 +141,9 @@ class App extends Component {
     componentWillMount = function() {
     this.getRandomBirdsong();
   }
-  
+
   render() {
+
     return (
       <div className="App">
         <header className="App-header">
@@ -178,11 +181,18 @@ class App extends Component {
                           'backgroundColor': backgroundColour,
                           'color': 'white',
                           'border': 'solid 1px',
+                          'height': '40px',
+                          'verticalAlign': 'middle',
+                          'fontSize': '20px',
                           'width': '50%',
                           'marginLeft': '25%',
                           'marginBottom': '5px',
-                          'cursor': 'pointer'
-                      }} onClick={() => this.onSpeciesGuessMade(option)}>{option.Species}</div>
+                          'cursor': 'pointer',
+                          'paddingTop': '5px'
+                      }} onClick={() => this.onSpeciesGuessMade(option)}>{option.Species}
+                          { backgroundColour === 'green' && <FontAwesomeIcon style={{'margin-left': '5px'}} icon={faCheck} />}
+                          { backgroundColour === 'red' && <FontAwesomeIcon style={{'margin-left': '5px'}} icon={faTimes} />}
+                      </div>
                   })
                   }
               </div>
