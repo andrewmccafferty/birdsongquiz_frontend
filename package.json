@@ -7,7 +7,10 @@
     "react-bootstrap-typeahead": "^3.0.4",
     "react-dom": "^16.3.1",
     "react-scripts": "1.1.4",
-    "react-typeahead": "^2.0.0-alpha.8"
+    "react-typeahead": "^2.0.0-alpha.8",
+    "@fortawesome/react-fontawesome":"^0.1.4",
+    "@fortawesome/fontawesome-svg-core": "^1.2.19",
+    "@fortawesome/free-solid-svg-icons": "^5.9.0"
   },
   "scripts": {
     "start": "react-scripts start",
