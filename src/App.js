@@ -22,7 +22,7 @@ class App extends Component {
           level: 1,
           counter: 0,
           correctCount: 0,
-          livesLeft: 1,
+          livesLeft: 5,
           errorLoading: false,
           expertMode: false,
           guessCorrect: false
