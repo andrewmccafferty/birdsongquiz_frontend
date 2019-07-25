@@ -6,11 +6,12 @@ import 'react-bootstrap-typeahead/css/Typeahead.css';
 import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faTimes, faCrow } from '@fortawesome/free-solid-svg-icons'
-
+import ReactGA from 'react-ga'
 class App extends Component {
   constructor(props) {
     super(props);
       this.state = {
+          isInitialised: false,
           birdsongId: "",
           species: "",
           noRecordingFound: false,
@@ -21,7 +22,7 @@ class App extends Component {
           level: 1,
           counter: 0,
           correctCount: 0,
-          livesLeft: 5,
+          livesLeft: 1,
           errorLoading: false,
           expertMode: false,
           guessCorrect: false
@@ -70,6 +71,7 @@ class App extends Component {
           });
       }
   }
+
   getRandomBirdsong = function() {
       this.clearGuess();
       this.setState((prevState, props) => {
@@ -133,8 +135,25 @@ class App extends Component {
           let newLevel = prevState.level
           if (correctCount > 0 && correctCount % levelIncrementInterval === 0) {
               newLevel++
+              ReactGA.event({
+                  category: 'Skill',
+                  action: 'Upgraded level',
+                  value: newLevel
+              })
           }
           const newLivesLeft = !guessCorrect ? prevState.livesLeft - 1 : prevState.livesLeft
+          if (newLivesLeft === 0) {
+              ReactGA.event({
+                  category: 'Skill',
+                  action: 'Final score',
+                  value: correctCount
+              })
+              ReactGA.event({
+                  category: 'Skill',
+                  action: 'Total',
+                  value: newCounter
+              })
+          }
           return {
               ...props,
               selectedSpeciesGuess: guess,
@@ -158,7 +177,8 @@ class App extends Component {
 
 
     componentWillMount = function() {
-    this.getRandomBirdsong();
+        ReactGA.initialize('UA-117907312-1');
+        this.getRandomBirdsong();
   }
 
   render() {
@@ -169,12 +189,12 @@ class App extends Component {
           <h1 className="App-title">Birdsong quiz</h1>
         </header>
         <div className="App-intro">
-            <div style={{'margin-bottom': '5px'}}>
+            <div style={{'marginBottom': '5px'}}>
                 {<div>Score so far {this.state.correctCount}/{this.state.counter }</div>}
-                {_.range(0, this.state.livesLeft).map(i =>  <FontAwesomeIcon style={{'font-size': '30px', 'margin': '5px'}} icon={faCrow} /> )}
+                {_.range(0, this.state.livesLeft).map(i =>  <FontAwesomeIcon key={i} style={{'fontSize': '30px', 'margin': '5px'}} icon={faCrow} /> )}
                 { this.state.livesLeft === 0 &&
                 <div>
-                    Game Over <FontAwesomeIcon style={{'margin-left': '5px'}} transform={{ rotate: 180 }} icon={faCrow} />
+                    <FontAwesomeIcon style={{'margin-left': '5px'}} transform={{ rotate: 180 }} icon={faCrow} /> Game Over!
                 </div>}
             </div>
             {this.state.loading && <div>Loading...</div>}
