@@ -94,11 +94,15 @@ class App extends Component {
                   }
               }
               const recording = result.recordingResult.recording
+              const image = result.recordingResult.image
               return {
                   ...props,
                   birdsongId: recording.id,
                   species: recording.en,
                   recordist: recording.rec,
+                  imageUrl: image ? image.imageUrl : null,
+                  flickrLink: image ? image.flickrLink : null,
+                  photographer: image ? image.photographer : null,
                   scientificName: recording.gen + ' ' + recording.sp,
                   loading: false,
                   showSpecies: false,
@@ -194,7 +198,7 @@ class App extends Component {
                 {_.range(0, this.state.livesLeft).map(i =>  <FontAwesomeIcon key={i} style={{'fontSize': '30px', 'margin': '5px'}} icon={faCrow} /> )}
                 { this.state.livesLeft === 0 &&
                 <div>
-                    <FontAwesomeIcon style={{'margin-left': '5px'}} transform={{ rotate: 180 }} icon={faCrow} /> Game Over!
+                    <FontAwesomeIcon style={{'marginLeft': '5px'}} transform={{ rotate: 180 }} icon={faCrow} /> Game Over!
                 </div>}
             </div>
             {this.state.loading && <div>Loading...</div>}
@@ -204,8 +208,10 @@ class App extends Component {
                 {!this.state.loading &&  !this.state.errorLoading && this.state.birdsongId &&
                 !this.state.noRecordingFound &&
                 <div>
-                    <audio autoPlay={true} controls src={`https://www.xeno-canto.org/${this.state.birdsongId}/download`}>
-                    </audio>
+                    <div>
+                        <audio autoPlay={true} controls src={`https://www.xeno-canto.org/${this.state.birdsongId}/download`}>
+                        </audio>
+                    </div>
                 </div>
                 }
         </div>
@@ -234,8 +240,8 @@ class App extends Component {
                           'cursor': 'pointer',
                           'paddingTop': '5px'
                       }} onClick={() => this.onSpeciesGuessMade(option)}>{option.Species}
-                          { backgroundColour === 'green' && <FontAwesomeIcon style={{'margin-left': '5px'}} icon={faCheck} />}
-                          { backgroundColour === 'red' && <FontAwesomeIcon style={{'margin-left': '5px'}} icon={faTimes} />}
+                          { backgroundColour === 'green' && <FontAwesomeIcon style={{'marginLeft': '5px'}} icon={faCheck} />}
+                          { backgroundColour === 'red' && <FontAwesomeIcon style={{'marginLeft': '5px'}} icon={faTimes} />}
                       </div>
                   })
                   }
@@ -251,11 +257,19 @@ class App extends Component {
                       'marginBottom': '5px'}}>
                       Recording courtesy of {this.state.recordist} via <a target="_blank" href={`http://xeno-canto.org/${this.state.birdsongId}`}>http://xeno-canto.org/{this.state.birdsongId}</a>
                   </div>
-                  {this.state.livesLeft > 0 && <button class="btn btn-info" href="#" onClick={() => this.getRandomBirdsong()}>Next -></button>}
+                  {this.state.livesLeft > 0 && <button className="btn btn-info" href="#" onClick={() => this.getRandomBirdsong()}>Next -></button>}
               </div>
           }
           {this.state.livesLeft === 0 &&
           <button className="btn btn-info" href="#" onClick={() => this.restartGame()}>Play again?</button>}
+
+            {this.state.selectedSpeciesGuess && this.state.imageUrl &&
+            <figure style={{'marginTop': '5px'}}>
+                <img src={this.state.imageUrl}/>
+                <figcaption>
+                    Picture of {this.state.species} taken by {this.state.photographer} (see <a target="_blank" href={this.state.flickrLink}>{this.state.flickrLink}</a>)
+                </figcaption>
+            </figure>}
       </div>
     );
   }
