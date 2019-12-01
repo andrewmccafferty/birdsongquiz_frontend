@@ -7,6 +7,8 @@ import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faTimes, faCrow } from '@fortawesome/free-solid-svg-icons'
 import ReactGA from 'react-ga'
+
+const MAX_LEVEL = 5
 class App extends Component {
   constructor(props) {
     super(props);
@@ -59,9 +61,6 @@ class App extends Component {
     };
 
   clearGuess = () => {
-      if (this._typeahead) {
-          this._typeahead.getInstance().clear();
-      }
       if (this.state.selectedSpeciesGuess) {
           this.setState((prevState, props) => {
              return {
@@ -137,7 +136,7 @@ class App extends Component {
           let correctCount = guessCorrect ? prevState.correctCount + 1 : prevState.correctCount;
           const newCounter = prevState.counter + 1
           let newLevel = prevState.level
-          if (correctCount > 0 && correctCount % levelIncrementInterval === 0) {
+          if (correctCount > 0 && newLevel < MAX_LEVEL && correctCount % levelIncrementInterval === 0) {
               newLevel++
               ReactGA.event({
                   category: 'Skill',
