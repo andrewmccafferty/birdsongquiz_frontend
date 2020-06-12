@@ -13,11 +13,27 @@ class App extends Component {
         ReactGA.initialize('UA-117907312-1');
   }
 
+  decodePresetSpecies = () => {
+      try {
+          const urlParams = new URLSearchParams(window.location.search)
+          const presetSpeciesBase64 = urlParams.get('presetSpecies')
+          if (!presetSpeciesBase64) {
+              return null
+          }
+          const presetSpecies = JSON.parse(atob(presetSpeciesBase64))
+          return presetSpecies
+      } catch (e) {
+          console.error("error decoding preset species", e)
+          return null
+      }
+  }
+
   constructor(props) {
       super(props);
+      const presetSpecies = this.decodePresetSpecies()
       this.state = {
-          gameMode: null,
-          headToHeadSpeciesList: null,
+          gameMode: presetSpecies != null ? "HeadToHead" : null,
+          headToHeadSpeciesList: presetSpecies,
           modeOptions: [
               {
                   value: 'Beginner',
@@ -67,6 +83,8 @@ class App extends Component {
 
   headToHeadLabel = () =>
        `Head to head species: ${this.state.headToHeadSpeciesList.map(species => species.Species).join(", ")}`
+
+    headToHeadSharingLink = () => `${window.location.origin}?presetSpecies=${btoa(JSON.stringify(this.state.headToHeadSpeciesList))}`
   render(){
     return (
         <div className="App">
@@ -77,12 +95,15 @@ class App extends Component {
                 {this.state.gameMode === "HeadToHead" && this.state.headToHeadSpeciesList &&
                     this.headToHeadLabel()
                 }
+                {
+                    this.state.gameMode === "HeadToHead" && this.state.headToHeadSpeciesList
+                    && <a href={this.headToHeadSharingLink()} style={{'margin-left': '5px'}}>permalink</a>
+                }
             </header>
             {!this.state.gameMode && <ModeSelector options={this.state.modeOptions} onSelected={
-                selectedMode => this.onModeSelected(selectedMode)
+                                                    selectedMode => this.onModeSelected(selectedMode)
             }
-            >
-            </ModeSelector>}
+    />}
             { this.state.gameMode === "HeadToHead" && !this.state.headToHeadSpeciesList &&
                 <HeadToHeadSpeciesSelector onSelectionComplete={headToHeadSpeciesList => this.onHeadToHeadSpeciesSelected(headToHeadSpeciesList)}/>
             }
