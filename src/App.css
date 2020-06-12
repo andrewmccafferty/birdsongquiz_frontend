@@ -26,3 +26,19 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.Selected-Species {
+  border: solid 1px;
+  width: 200px;
+  border-radius: 10px;
+  float: left;
+}
+
+.Species-Selection {
+  width: 500px;
+}
+.Close-Button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
