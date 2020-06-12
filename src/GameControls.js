@@ -13,6 +13,7 @@ class GameControls extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			isBeginnerMode: props.isBeginnerMode,
 			headToHeadSpecies: props.headToHeadSpecies,
 			isInitialised: false,
 			birdsongId: "",
@@ -131,7 +132,7 @@ class GameControls extends Component {
 			let correctCount = guessCorrect ? prevState.correctCount + 1 : prevState.correctCount;
 			const newCounter = prevState.counter + 1
 			let newLevel = prevState.level
-			if (correctCount > 0 && newLevel < MAX_LEVEL && correctCount % levelIncrementInterval === 0) {
+			if (!this.state.isBeginnerMode && correctCount > 0 && newLevel < MAX_LEVEL && correctCount % levelIncrementInterval === 0) {
 				newLevel++
 				ReactGA.event({
 					category: 'Skill',

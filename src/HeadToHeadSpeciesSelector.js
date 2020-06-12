@@ -34,6 +34,9 @@ class HeadToHeadSpeciesSelector extends Component {
 	}
 
 	onSpeciesSelected = species => {
+		if (this._typeahead) {
+			this._typeahead.getInstance().clear();
+		}
 		const speciesAlreadySelected = selectedSpecies => this.state.selectedSpeciesList.some(item => item.Species === selectedSpecies.Species)
 		if (!species || speciesAlreadySelected(species)) {
 			return
@@ -78,6 +81,7 @@ class HeadToHeadSpeciesSelector extends Component {
 				onChange={(options) => {
 					this.onSpeciesSelected(options[0]);
 				}}
+				ref={(ref) => this._typeahead = ref}
 			/>
 				{this.state.selectedSpeciesList && this.state.selectedSpeciesList.map(species =>
 					<div className={'Selected-Species'} key={species.Species}>

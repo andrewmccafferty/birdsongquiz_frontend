@@ -20,12 +20,16 @@ class App extends Component {
           headToHeadSpeciesList: null,
           modeOptions: [
               {
+                  value: 'Beginner',
+                  text: 'Beginner mode'
+              },
+              {
                   value: 'HeadToHead',
                   text: 'Head to Head'
               },
               {
                   value: 'Random',
-                  text: 'Random increasing level'
+                  text: 'Random, increasing difficulty'
               }
           ]
       }
@@ -41,12 +45,15 @@ class App extends Component {
   }
 
   onRestartClicked = () => {
-        this.setState((prevState, props) => {
-            return {
-                ...props,
-                gameMode: null
-            }
-        })
+        if (window.confirm("Are you sure you want to restart?")) {
+            this.setState((prevState, props) => {
+                return {
+                    ...props,
+                    gameMode: null,
+                    headToHeadSpeciesList: null
+                }
+            })
+        }
   }
 
   onHeadToHeadSpeciesSelected = headToHeadSpeciesList => {
@@ -79,8 +86,8 @@ class App extends Component {
             { this.state.gameMode === "HeadToHead" && !this.state.headToHeadSpeciesList &&
                 <HeadToHeadSpeciesSelector onSelectionComplete={headToHeadSpeciesList => this.onHeadToHeadSpeciesSelected(headToHeadSpeciesList)}/>
             }
-            { (this.state.gameMode === "Random" || (this.state.gameMode === "HeadToHead" && this.state.headToHeadSpeciesList)) &&
-                    <GameControls headToHeadSpecies={this.state.headToHeadSpeciesList}/>}
+            { this.state.gameMode && (this.state.gameMode !== "HeadToHead" || (this.state.gameMode === "HeadToHead" && this.state.headToHeadSpeciesList)) &&
+                    <GameControls headToHeadSpecies={this.state.headToHeadSpeciesList} isBeginnerMode={this.state.gameMode === "Beginner"}/>}
         </div>
     )
   }
