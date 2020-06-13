@@ -72,12 +72,14 @@ class App extends Component {
         <div className="App">
             <header className="App-header">
                 <h1 className="App-title">
-                    {this.state.gameMode && <a href="#" onClick={() => this.onRestartClicked()}><FontAwesomeIcon style={{'fontSize': '30px', 'margin': '5px', 'vertical-align': 'middle'}} icon={faBackspace} /></a>}
+                    {this.state.gameMode && <button className={'Icon-Button'} onClick={() => this.onRestartClicked()}><FontAwesomeIcon
+                        style={{'color': 'white', 'fontSize': '30px', 'margin': '5px', 'vertical-align': 'middle'}} icon={faBackspace} title={'Restart game'} /></button>}
                     Birdsong quiz</h1>
                 {this.state.gameMode === "HeadToHead" && this.state.headToHeadSpeciesList &&
                     this.headToHeadLabel()
                 }
             </header>
+            <div className={'Game-Area'}>
             {!this.state.gameMode && <ModeSelector options={this.state.modeOptions} onSelected={
                 selectedMode => this.onModeSelected(selectedMode)
             }
@@ -88,6 +90,7 @@ class App extends Component {
             }
             { this.state.gameMode && (this.state.gameMode !== "HeadToHead" || (this.state.gameMode === "HeadToHead" && this.state.headToHeadSpeciesList)) &&
                     <GameControls headToHeadSpecies={this.state.headToHeadSpeciesList} isBeginnerMode={this.state.gameMode === "Beginner"}/>}
+            </div>
         </div>
     )
   }

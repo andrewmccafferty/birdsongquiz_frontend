@@ -3,8 +3,6 @@ import {API_ROOT} from "./api-config";
 import {Typeahead} from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes } from '@fortawesome/free-solid-svg-icons'
 
 class HeadToHeadSpeciesSelector extends Component {
 	callApi = async (path) => {
@@ -33,33 +31,6 @@ class HeadToHeadSpeciesSelector extends Component {
 		})
 	}
 
-	onSpeciesSelected = species => {
-		if (this._typeahead) {
-			this._typeahead.getInstance().clear();
-		}
-		const speciesAlreadySelected = selectedSpecies => this.state.selectedSpeciesList.some(item => item.Species === selectedSpecies.Species)
-		if (!species || speciesAlreadySelected(species)) {
-			return
-		}
-		this.setState((prevState, props) => {
-			const newList = prevState.selectedSpeciesList.concat(species)
-			return {
-				...props,
-				selectedSpeciesList: newList
-			}
-		})
-	}
-
-	onSpeciesRemoved = species => {
-		this.setState((prevState, props) => {
-			const newList = prevState.selectedSpeciesList.filter(element => element !== species)
-			return {
-				...props,
-				selectedSpeciesList: newList
-			}
-		})
-	}
-
 	onSelectionComplete =() => {
 		this.props.onSelectionComplete(this.state.selectedSpeciesList)
 	}
@@ -68,30 +39,23 @@ class HeadToHeadSpeciesSelector extends Component {
 		return (
 			<div>
 				<h2>Select some species to go head to head</h2>
-				<div>
-					<button disabled={!this.state.selectedSpeciesList || this.state.selectedSpeciesList.length < 2} onClick={() => this.onSelectionComplete()}>Finish selection</button>
-				</div>
 				<Typeahead
+					multiple
 				className={'Species-Selection'}
 				labelKey="Species"
 				options={this.state.speciesList}
-				placeholder="Choose a species"
+				placeholder="Start typing to choose a species"
 				minLength={1}
 				clearButton={true}
-				onChange={(options) => {
-					this.onSpeciesSelected(options[0]);
+				onChange={(selected) => {
+					this.setState({selectedSpeciesList: selected});
 				}}
+				selected={this.state.selectedSpeciesList}
 				ref={(ref) => this._typeahead = ref}
 			/>
-				{this.state.selectedSpeciesList && this.state.selectedSpeciesList.map(species =>
-					<div className={'Selected-Species'} key={species.Species}>
-						{species.Species}
-						<button onClick={() => this.onSpeciesRemoved(species)} className={'Close-Button'}>
-							<FontAwesomeIcon  style={{'fontSize': '20px', 'margin': '5px', 'vertical-align': 'middle'}} icon={faTimes} />
-						</button>
-					</div>
-				)
-				}
+				<div>
+					<button disabled={!this.state.selectedSpeciesList || this.state.selectedSpeciesList.length < 2} onClick={() => this.onSelectionComplete()}>Finish selection</button>
+				</div>
 			</div>
 		)
 	}
