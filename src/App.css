@@ -26,18 +26,31 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-
-.Selected-Species {
-  border: solid 1px;
-  width: 200px;
-  border-radius: 10px;
-  float: left;
+@media only screen and (min-width: 450px) {
+  .Game-Area {
+    width: 50%;
+    margin-left: 30%;
+  }
 }
 
 .Species-Selection {
-  width: 500px;
+  margin-bottom: 5px;
 }
-.Close-Button {
+
+.Selection-Button {
+background-color: gray;
+color: white;
+border: solid 1px;
+height: 40px;
+vertical-align: middle;
+font-size: 20px;
+width: 100%;
+margin-bottom: 5px;
+cursor: pointer;
+padding-top: 5px
+}
+
+.Icon-Button {
   border: none;
   background: transparent;
   cursor: pointer;

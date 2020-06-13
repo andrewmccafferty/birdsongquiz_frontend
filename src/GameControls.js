@@ -166,7 +166,6 @@ class GameControls extends Component {
 	};
 
 	componentWillMount = function() {
-		ReactGA.initialize('UA-117907312-1');
 		this.getRandomBirdsong();
 	}
 
@@ -217,18 +216,10 @@ class GameControls extends Component {
 							backgroundColour = 'green'
 						}
 						return <div key={option.Species} style={{
-							'backgroundColor': backgroundColour,
-							'color': 'white',
-							'border': 'solid 1px',
-							'height': '40px',
-							'verticalAlign': 'middle',
-							'fontSize': '20px',
-							'width': '50%',
-							'marginLeft': '25%',
-							'marginBottom': '5px',
-							'cursor': 'pointer',
-							'paddingTop': '5px'
-						}} onClick={() => this.onSpeciesGuessMade(option)}>{option.Species}
+							'backgroundColor': backgroundColour
+						}}
+						className={'Selection-Button'}
+									onClick={() => this.onSpeciesGuessMade(option)}>{option.Species}
 							{ backgroundColour === 'green' && <FontAwesomeIcon style={{'marginLeft': '5px'}} icon={faCheck} />}
 							{ backgroundColour === 'red' && <FontAwesomeIcon style={{'marginLeft': '5px'}} icon={faTimes} />}
 						</div>
@@ -246,7 +237,7 @@ class GameControls extends Component {
 							'marginBottom': '5px'}}>
 							Recording courtesy of {this.state.recordist} via <a target="_blank" href={`http://xeno-canto.org/${this.state.birdsongId}`}>http://xeno-canto.org/{this.state.birdsongId}</a>
 						</div>
-						{this.state.livesLeft > 0 && <button className="btn btn-info" href="#" onClick={() => this.getRandomBirdsong()}>Next -></button>}
+						{this.state.livesLeft > 0 && <button className="btn btn-info" onClick={() => this.getRandomBirdsong()}>Next -></button>}
 					</div>
 				}
 				{this.state.livesLeft === 0 &&
@@ -254,7 +245,7 @@ class GameControls extends Component {
 
 				{!this.state.headToHeadSpecies && this.state.selectedSpeciesGuess && this.state.imageUrl &&
 				<figure style={{'marginTop': '5px'}}>
-					<img src={this.state.imageUrl}/>
+					<img src={this.state.imageUrl} alt={this.state.species}/>
 					<figcaption>
 						Picture of {this.state.species} taken by {this.state.photographer} (see <a target="_blank" href={this.state.flickrLink}>{this.state.flickrLink}</a>)
 					</figcaption>
