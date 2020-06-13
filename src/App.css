@@ -33,16 +33,7 @@
   }
 }
 
-.Selected-Species {
-  margin: 5px;
-  border: solid 1px;
-  width: 200px;
-  border-radius: 10px;
-  float: left;
-}
-
 .Species-Selection {
-  width: 500px;
   margin-bottom: 5px;
 }
 
